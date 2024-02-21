@@ -5,8 +5,14 @@ import { Provider, fromTai64ToUnix,BN } from 'fuels';
 import CreateCampaignForm from './CreateCampaignForm';
 import PetitionForm from './PetitionForm';
 import Modal from './Modal';
+import {
+  useConnectUI,
+  useIsConnected,
+  useWallet,
+  useFuel
+} from '@fuel-wallet/react';
 
-const CONTRACT_ID = '0xe4cf05aa7c013a3c5dbb20ab3fa7737c0c5279abdf6832f300a6a9a5185403cb'; //Replace with your contract address
+const CONTRACT_ID = '0x842ee06b7e36535f719c4f992c02175f2ea155b8c5348df8e7c31de348c927dd'; //Replace with your contract address
 
 function App() {
   const [connected, setConnected] = useState(false);
@@ -14,6 +20,12 @@ function App() {
   const [showModal, setShowModal] = useState(false);
   const [modalTitle, setModalTitle] = useState('');
   const [modalContent, setModalContent] = useState('');
+  const { connect, setTheme, isConnecting } =
+    useConnectUI();
+    const { isConnected } = useIsConnected();
+    const { wallet } = useWallet();
+    const { fuel } = useFuel();
+
 
   useEffect(() => {
     checkConnection();
@@ -27,16 +39,18 @@ function App() {
     setShowModal(true);
   };
 
-  async function connect() {
-    if (window.fuel) {
+  async function connect_wallet() {
+    if (isConnected && wallet) {
       try {
-        await window.fuel.connect();
-        const accounts = await window.fuel.accounts();
+        connect();
+        const accounts = await fuel.currentAccount();
+        if(accounts) {
         if (accounts.length === 0) {
           throw new Error('No accounts found.');
         }
-        setAccount(accounts[0]);
+        setAccount(accounts);
         setConnected(true);
+      }
       } catch (err) {
         console.error('error connecting: ', err);
       }
@@ -46,18 +60,18 @@ function App() {
   }
 
   async function checkConnection() {
-    if (window.fuel) {
-      const isConnected = await window.fuel.isConnected();
+    if (isConnected && wallet) {
       setConnected(isConnected);
       if (isConnected) {
-        const accounts = await window.fuel.accounts();
-        setAccount(accounts[0]);
+        const accounts = await fuel.currentAccount();
+        if(accounts)
+        setAccount(accounts);
       }
     }
   }
 
   async function getDeadline(deadlineDays: number) {
-    const provider = await Provider.create('https://beta-4.fuel.network/graphql');
+    const provider = await Provider.create('https://beta-5.fuel.network/graphql');
     const block = await provider.getBlock('latest');
     if (!block || !block.time) {
       throw new Error('Failed to fetch the latest block or block timestamp.');
@@ -84,8 +98,7 @@ function convertBNToDate(timestampBN: BN | undefined): string | null {
 
 //Function to create campaign
 async function createCampaign(deadline: number) {
-    if (window.fuel) {
-      const wallet = await window.fuel.getWallet(account);
+    if (isConnected && wallet) {
       const contract = PetitionContractAbi__factory.connect(CONTRACT_ID, wallet);
       const deadlineStamp = await getDeadline(deadline);
       const {logs} = await contract.functions.create_campaign(deadlineStamp).txParams({gasPrice:1}).call()
@@ -106,8 +119,7 @@ async function createCampaign(deadline: number) {
 
 //Function to sign the petition
   async function signPetition(campaignId: number) {
-    if (window.fuel) {
-      const wallet = await window.fuel.getWallet(account);
+    if (isConnected && wallet) {
       const contract = PetitionContractAbi__factory.connect(CONTRACT_ID, wallet);      
       const {logs} = await contract.functions.sign_petition(campaignId).txParams({gasPrice:1}).call();
       const signLog = logs[0];
@@ -118,8 +130,7 @@ async function createCampaign(deadline: number) {
 
   //Function to sign the petition
   async function cancelPetition(campaignId: number) {
-    if (window.fuel) {
-      const wallet = await window.fuel.getWallet(account);
+    if (isConnected && wallet) {
       const contract = PetitionContractAbi__factory.connect(CONTRACT_ID, wallet);      
       const {logs} = await contract.functions.cancel_campaign(campaignId).txParams({gasPrice:1}).call();
       const cancelLog = logs[0];
@@ -130,8 +141,7 @@ async function createCampaign(deadline: number) {
 
    //Function to unsign the campaign
    async function unsignPetition(campaignId: number) {
-    if (window.fuel) {
-      const wallet = await window.fuel.getWallet(account);
+    if (isConnected && wallet) {
       const contract = PetitionContractAbi__factory.connect(CONTRACT_ID, wallet);      
       const {logs} = await contract.functions.unsign_petition(campaignId).txParams({gasPrice:1}).call()
       displayModal("Campaign Unsigned", `Campaign ID Unsigned: ${logs[0].campaign_id?.toString(10)}`);
@@ -140,8 +150,7 @@ async function createCampaign(deadline: number) {
 
  // Function to get the campaign info
   async function campaignInfo(campaignId: number) {
-    if (window.fuel) {
-      const wallet = await window.fuel.getWallet(account);
+    if (isConnected && wallet) {
       const contract = PetitionContractAbi__factory.connect(CONTRACT_ID, wallet);      
       const {value} = await contract.functions.campaign_info(campaignId).txParams({gasPrice:1}).call()
       const deadlineTimestamp = await convertBNToDate(value?.deadline);
@@ -158,8 +167,7 @@ async function createCampaign(deadline: number) {
   }
   //Function to end the campaign
   async function endCampaign(campaignId: number) {
-    if (window.fuel) {
-      const wallet = await window.fuel.getWallet(account);
+    if (isConnected && wallet) {
       const contract = PetitionContractAbi__factory.connect(CONTRACT_ID, wallet);      
       const {logs} = await contract.functions.end_campaign(campaignId).txParams({gasPrice:1}).call()
       const campaignLog = logs[0];
@@ -179,7 +187,7 @@ async function createCampaign(deadline: number) {
             Disconnect Wallet
           </button>
         ) : (
-          <button onClick={connect} className="connect-button">
+          <button onClick={connect_wallet} className="connect-button">
             Connect Wallet
           </button>
         )}
