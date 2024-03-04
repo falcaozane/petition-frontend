@@ -8,6 +8,7 @@ import Modal from './Modal';
 import {
   useConnectUI,
   useIsConnected,
+  useDisconnect,
   useWallet,
   useFuel
 } from '@fuel-wallet/react';
@@ -15,22 +16,13 @@ import {
 const CONTRACT_ID = '0x842ee06b7e36535f719c4f992c02175f2ea155b8c5348df8e7c31de348c927dd'; //Replace with your contract address
 
 function App() {
-  const [connected, setConnected] = useState(false);
-  const [account, setAccount] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [modalTitle, setModalTitle] = useState('');
   const [modalContent, setModalContent] = useState('');
-  const { connect, setTheme, isConnecting } =
-    useConnectUI();
-    const { isConnected } = useIsConnected();
-    const { wallet } = useWallet();
-    const { fuel } = useFuel();
-
-
-  useEffect(() => {
-    checkConnection();
-  }, []);
-  
+  const { connect } = useConnectUI();
+  const { disconnect } = useDisconnect();
+  const { isConnected } = useIsConnected();
+  const { wallet } = useWallet();
 
    // Call this function to show the modal with the passed title and content
    const displayModal = (title: string, content: string) => {
@@ -39,35 +31,16 @@ function App() {
     setShowModal(true);
   };
 
-  async function connect_wallet() {
-    if (isConnected && wallet) {
-      try {
-        connect();
-        const accounts = await fuel.currentAccount();
-        if(accounts) {
-        if (accounts.length === 0) {
-          throw new Error('No accounts found.');
+  const connect_wallet = async () => {
+        try {
+          connect();
+        } catch (err) {
+            console.error('error connecting: ', err);
         }
-        setAccount(accounts);
-        setConnected(true);
-      }
-      } catch (err) {
-        console.error('error connecting: ', err);
-      }
-    } else {
-      console.error('Fuel wallet is not available');
-    }
-  }
+    }  
 
-  async function checkConnection() {
-    if (isConnected && wallet) {
-      setConnected(isConnected);
-      if (isConnected) {
-        const accounts = await fuel.currentAccount();
-        if(accounts)
-        setAccount(accounts);
-      }
-    }
+  const disconnect_wallet = () => {
+    disconnect();
   }
 
   async function getDeadline(deadlineDays: number) {
@@ -101,7 +74,7 @@ async function createCampaign(deadline: number) {
     if (isConnected && wallet) {
       const contract = PetitionContractAbi__factory.connect(CONTRACT_ID, wallet);
       const deadlineStamp = await getDeadline(deadline);
-      const {logs} = await contract.functions.create_campaign(deadlineStamp).txParams({gasPrice:1}).call()
+      const {logs} = await contract.functions.create_campaign(deadlineStamp).txParams({gasPrice:10, gasLimit: 100_0000}).call()
       // Assuming 'log' is the object containing your data
       const campaignLog = logs[0]; // This selects the first item if it's an array
 
@@ -121,7 +94,7 @@ async function createCampaign(deadline: number) {
   async function signPetition(campaignId: number) {
     if (isConnected && wallet) {
       const contract = PetitionContractAbi__factory.connect(CONTRACT_ID, wallet);      
-      const {logs} = await contract.functions.sign_petition(campaignId).txParams({gasPrice:1}).call();
+      const {logs} = await contract.functions.sign_petition(campaignId).txParams({gasPrice:10, gasLimit: 100_0000}).call();
       const signLog = logs[0];
       displayModal("Petition Signed", `Campaign ID Signed: ${signLog.campaign_id?.toString(10)}`);
 
@@ -132,7 +105,7 @@ async function createCampaign(deadline: number) {
   async function cancelPetition(campaignId: number) {
     if (isConnected && wallet) {
       const contract = PetitionContractAbi__factory.connect(CONTRACT_ID, wallet);      
-      const {logs} = await contract.functions.cancel_campaign(campaignId).txParams({gasPrice:1}).call();
+      const {logs} = await contract.functions.cancel_campaign(campaignId).txParams({gasPrice:10, gasLimit: 100_0000}).call();
       const cancelLog = logs[0];
       displayModal("Campaign Cancelled", `Campaign ID Cancelled: ${cancelLog.campaign_id?.toString(10)}`);
 
@@ -143,7 +116,7 @@ async function createCampaign(deadline: number) {
    async function unsignPetition(campaignId: number) {
     if (isConnected && wallet) {
       const contract = PetitionContractAbi__factory.connect(CONTRACT_ID, wallet);      
-      const {logs} = await contract.functions.unsign_petition(campaignId).txParams({gasPrice:1}).call()
+      const {logs} = await contract.functions.unsign_petition(campaignId).txParams({gasPrice:10, gasLimit: 100_0000}).call()
       displayModal("Campaign Unsigned", `Campaign ID Unsigned: ${logs[0].campaign_id?.toString(10)}`);
     }
   }
@@ -152,7 +125,7 @@ async function createCampaign(deadline: number) {
   async function campaignInfo(campaignId: number) {
     if (isConnected && wallet) {
       const contract = PetitionContractAbi__factory.connect(CONTRACT_ID, wallet);      
-      const {value} = await contract.functions.campaign_info(campaignId).txParams({gasPrice:1}).call()
+      const {value} = await contract.functions.campaign_info(campaignId).txParams({gasPrice:10, gasLimit: 100_0000}).call()
       const deadlineTimestamp = await convertBNToDate(value?.deadline);
       console.log(value?.deadline.toString());
       const state = value?.state;
@@ -169,7 +142,7 @@ async function createCampaign(deadline: number) {
   async function endCampaign(campaignId: number) {
     if (isConnected && wallet) {
       const contract = PetitionContractAbi__factory.connect(CONTRACT_ID, wallet);      
-      const {logs} = await contract.functions.end_campaign(campaignId).txParams({gasPrice:1}).call()
+      const {logs} = await contract.functions.end_campaign(campaignId).txParams({gasPrice:10, gasLimit: 100_0000}).call()
       const campaignLog = logs[0];
       const id = campaignLog.campaign_id?.toString(10);
       const total_sign = campaignLog.total_signs?.toString(10);
@@ -182,8 +155,8 @@ async function createCampaign(deadline: number) {
   return (
     <div className="App">
         <h1>Petition dApp</h1>
-        {connected ? (
-          <button onClick={() => setConnected(false)} className="disconnect-button">
+        {isConnected ? (
+          <button onClick={disconnect_wallet} className="disconnect-button">
             Disconnect Wallet
           </button>
         ) : (
@@ -191,7 +164,7 @@ async function createCampaign(deadline: number) {
             Connect Wallet
           </button>
         )}
-      {connected && (
+      {isConnected && (
         <main className="App-main">
           <CreateCampaignForm onSubmit={createCampaign} />
           <div className="form-container">
