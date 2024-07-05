@@ -4,9 +4,9 @@
 /* eslint-disable */
 
 /*
-  Fuels version: 0.65.0
-  Forc version: 0.46.1
-  Fuel-Core version: 0.20.8
+  Fuels version: 0.82.0
+  Forc version: 0.49.3
+  Fuel-Core version: 0.22.1
 */
 
 import { Interface, Contract, ContractFactory } from "fuels";
@@ -14,6 +14,7 @@ import type { Provider, Account, AbstractAddress, BytesLike, DeployContractOptio
 import type { PetitionContractAbi, PetitionContractAbiInterface } from "../PetitionContractAbi";
 
 const _abi = {
+  "encoding": "1",
   "types": [
     {
       "typeId": 0,
@@ -59,7 +60,7 @@ const _abi = {
           "typeArguments": null
         },
         {
-          "name": "Sucessful",
+          "name": "Successful",
           "type": 0,
           "typeArguments": null
         },
@@ -124,7 +125,7 @@ const _abi = {
       "type": "enum UserError",
       "components": [
         {
-          "name": "SucessfulCampaign",
+          "name": "SuccessfulCampaign",
           "type": 0,
           "typeArguments": null
         },
@@ -162,7 +163,7 @@ const _abi = {
       "type": "struct Address",
       "components": [
         {
-          "name": "value",
+          "name": "bits",
           "type": 1,
           "typeArguments": null
         }
@@ -225,7 +226,7 @@ const _abi = {
       "type": "struct ContractId",
       "components": [
         {
-          "name": "value",
+          "name": "bits",
           "type": 1,
           "typeArguments": null
         }
@@ -290,7 +291,7 @@ const _abi = {
     },
     {
       "typeId": 17,
-      "type": "struct SucessfulCampaignEvent",
+      "type": "struct SuccessfulCampaignEvent",
       "components": [
         {
           "name": "campaign_id",
@@ -619,7 +620,7 @@ const _abi = {
   ],
   "loggedTypes": [
     {
-      "logId": 0,
+      "logId": "8742946235045228304",
       "loggedType": {
         "name": "",
         "type": 7,
@@ -627,15 +628,7 @@ const _abi = {
       }
     },
     {
-      "logId": 1,
-      "loggedType": {
-        "name": "",
-        "type": 7,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 2,
+      "logId": "6475932288818496062",
       "loggedType": {
         "name": "",
         "type": 2,
@@ -643,15 +636,7 @@ const _abi = {
       }
     },
     {
-      "logId": 3,
-      "loggedType": {
-        "name": "",
-        "type": 2,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 4,
+      "logId": "1922245568625580893",
       "loggedType": {
         "name": "",
         "type": 12,
@@ -659,7 +644,7 @@ const _abi = {
       }
     },
     {
-      "logId": 5,
+      "logId": "13390072562516710654",
       "loggedType": {
         "name": "",
         "type": 4,
@@ -667,7 +652,7 @@ const _abi = {
       }
     },
     {
-      "logId": 6,
+      "logId": "5342178501053257728",
       "loggedType": {
         "name": "",
         "type": 14,
@@ -675,39 +660,7 @@ const _abi = {
       }
     },
     {
-      "logId": 7,
-      "loggedType": {
-        "name": "",
-        "type": 7,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 8,
-      "loggedType": {
-        "name": "",
-        "type": 7,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 9,
-      "loggedType": {
-        "name": "",
-        "type": 7,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 10,
-      "loggedType": {
-        "name": "",
-        "type": 2,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 11,
+      "logId": "12050351775094179832",
       "loggedType": {
         "name": "",
         "type": 17,
@@ -715,39 +668,7 @@ const _abi = {
       }
     },
     {
-      "logId": 12,
-      "loggedType": {
-        "name": "",
-        "type": 7,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 13,
-      "loggedType": {
-        "name": "",
-        "type": 2,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 14,
-      "loggedType": {
-        "name": "",
-        "type": 2,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 15,
-      "loggedType": {
-        "name": "",
-        "type": 7,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 16,
+      "logId": "4111964249968485702",
       "loggedType": {
         "name": "",
         "type": 15,
@@ -755,31 +676,7 @@ const _abi = {
       }
     },
     {
-      "logId": 17,
-      "loggedType": {
-        "name": "",
-        "type": 7,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 18,
-      "loggedType": {
-        "name": "",
-        "type": 7,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 19,
-      "loggedType": {
-        "name": "",
-        "type": 7,
-        "typeArguments": []
-      }
-    },
-    {
-      "logId": 20,
+      "logId": "3423413078268424220",
       "loggedType": {
         "name": "",
         "type": 18,

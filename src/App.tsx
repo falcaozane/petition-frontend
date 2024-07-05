@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import { PetitionContractAbi__factory } from './contracts';
-import { Provider, fromTai64ToUnix,BN } from 'fuels';
+import { DateTime} from '@fuel-ts/utils';
+import { Provider,BN } from 'fuels';
 import CreateCampaignForm from './CreateCampaignForm';
 import PetitionForm from './PetitionForm';
 import Modal from './Modal';
@@ -11,9 +12,9 @@ import {
   useDisconnect,
   useWallet,
   useFuel
-} from '@fuel-wallet/react';
+} from '@fuels/react';
 
-const CONTRACT_ID = '0x842ee06b7e36535f719c4f992c02175f2ea155b8c5348df8e7c31de348c927dd'; //Replace with your contract address
+const CONTRACT_ID = '0x620a17ec51648d0352b456e8304b1267013fa539771f1814c740232584a848f0'; //Replace with your contract address
 
 function App() {
   const [showModal, setShowModal] = useState(false);
@@ -43,16 +44,18 @@ function App() {
     disconnect();
   }
 
+  //Get the current blocktime in TAI64 format and convert it to unix timestamp
   async function getDeadline(deadlineDays: number) {
-    const provider = await Provider.create('https://beta-5.fuel.network/graphql');
+    const provider = await Provider.create('https://testnet.fuel.network/v1/graphql');
     const block = await provider.getBlock('latest');
+    console.log('block',block)
     if (!block || !block.time) {
       throw new Error('Failed to fetch the latest block or block timestamp.');
     }
-    const currentTimestamp = fromTai64ToUnix(block.time);
+    const currentTimestamp = DateTime.fromTai64(block.time);
     const oneDayInSeconds = 24 * 60 * 60;
-    const deadline = currentTimestamp + (oneDayInSeconds * deadlineDays);
-    console.log(deadline);
+    const deadline = currentTimestamp.toUnixSeconds() + (oneDayInSeconds * deadlineDays)
+    console.log('deadline',deadline);
     return deadline;
   }
 
@@ -73,8 +76,9 @@ function convertBNToDate(timestampBN: BN | undefined): string | null {
 async function createCampaign(deadline: number) {
     if (isConnected && wallet) {
       const contract = PetitionContractAbi__factory.connect(CONTRACT_ID, wallet);
+      console.log(contract);
       const deadlineStamp = await getDeadline(deadline);
-      const {logs} = await contract.functions.create_campaign(deadlineStamp).txParams({gasPrice:10, gasLimit: 100_0000}).call()
+      const {logs} = await contract.functions.create_campaign(deadlineStamp).call()
       // Assuming 'log' is the object containing your data
       const campaignLog = logs[0]; // This selects the first item if it's an array
 
@@ -94,7 +98,7 @@ async function createCampaign(deadline: number) {
   async function signPetition(campaignId: number) {
     if (isConnected && wallet) {
       const contract = PetitionContractAbi__factory.connect(CONTRACT_ID, wallet);      
-      const {logs} = await contract.functions.sign_petition(campaignId).txParams({gasPrice:10, gasLimit: 100_0000}).call();
+      const {logs} = await contract.functions.sign_petition(campaignId).call();
       const signLog = logs[0];
       displayModal("Petition Signed", `Campaign ID Signed: ${signLog.campaign_id?.toString(10)}`);
 
@@ -105,7 +109,7 @@ async function createCampaign(deadline: number) {
   async function cancelPetition(campaignId: number) {
     if (isConnected && wallet) {
       const contract = PetitionContractAbi__factory.connect(CONTRACT_ID, wallet);      
-      const {logs} = await contract.functions.cancel_campaign(campaignId).txParams({gasPrice:10, gasLimit: 100_0000}).call();
+      const {logs} = await contract.functions.cancel_campaign(campaignId).call();
       const cancelLog = logs[0];
       displayModal("Campaign Cancelled", `Campaign ID Cancelled: ${cancelLog.campaign_id?.toString(10)}`);
 
@@ -116,7 +120,7 @@ async function createCampaign(deadline: number) {
    async function unsignPetition(campaignId: number) {
     if (isConnected && wallet) {
       const contract = PetitionContractAbi__factory.connect(CONTRACT_ID, wallet);      
-      const {logs} = await contract.functions.unsign_petition(campaignId).txParams({gasPrice:10, gasLimit: 100_0000}).call()
+      const {logs} = await contract.functions.unsign_petition(campaignId).call()
       displayModal("Campaign Unsigned", `Campaign ID Unsigned: ${logs[0].campaign_id?.toString(10)}`);
     }
   }
@@ -125,7 +129,7 @@ async function createCampaign(deadline: number) {
   async function campaignInfo(campaignId: number) {
     if (isConnected && wallet) {
       const contract = PetitionContractAbi__factory.connect(CONTRACT_ID, wallet);      
-      const {value} = await contract.functions.campaign_info(campaignId).txParams({gasPrice:10, gasLimit: 100_0000}).call()
+      const {value} = await contract.functions.campaign_info(campaignId).call()
       const deadlineTimestamp = await convertBNToDate(value?.deadline);
       console.log(value?.deadline.toString());
       const state = value?.state;
@@ -142,7 +146,7 @@ async function createCampaign(deadline: number) {
   async function endCampaign(campaignId: number) {
     if (isConnected && wallet) {
       const contract = PetitionContractAbi__factory.connect(CONTRACT_ID, wallet);      
-      const {logs} = await contract.functions.end_campaign(campaignId).txParams({gasPrice:10, gasLimit: 100_0000}).call()
+      const {logs} = await contract.functions.end_campaign(campaignId).call()
       const campaignLog = logs[0];
       const id = campaignLog.campaign_id?.toString(10);
       const total_sign = campaignLog.total_signs?.toString(10);

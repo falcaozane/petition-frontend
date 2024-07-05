@@ -4,9 +4,9 @@
 /* eslint-disable */
 
 /*
-  Fuels version: 0.65.0
-  Forc version: 0.46.1
-  Fuel-Core version: 0.20.8
+  Fuels version: 0.82.0
+  Forc version: 0.49.3
+  Fuel-Core version: 0.22.1
 */
 
 import type {
@@ -24,16 +24,16 @@ import type { Option, Enum } from "./common";
 
 export enum CampaignErrorInput { CampaignEnded = 'CampaignEnded', CampaignHasBeenCancelled = 'CampaignHasBeenCancelled', DeadlineNotReached = 'DeadlineNotReached' };
 export enum CampaignErrorOutput { CampaignEnded = 'CampaignEnded', CampaignHasBeenCancelled = 'CampaignHasBeenCancelled', DeadlineNotReached = 'DeadlineNotReached' };
-export enum CampaignStateInput { Cancelled = 'Cancelled', Sucessful = 'Sucessful', Progress = 'Progress' };
-export enum CampaignStateOutput { Cancelled = 'Cancelled', Sucessful = 'Sucessful', Progress = 'Progress' };
+export enum CampaignStateInput { Cancelled = 'Cancelled', Successful = 'Successful', Progress = 'Progress' };
+export enum CampaignStateOutput { Cancelled = 'Cancelled', Successful = 'Successful', Progress = 'Progress' };
 export enum CreationErrorInput { DeadlineMustBeInTheFuture = 'DeadlineMustBeInTheFuture' };
 export enum CreationErrorOutput { DeadlineMustBeInTheFuture = 'DeadlineMustBeInTheFuture' };
 export type IdentityInput = Enum<{ Address: AddressInput, ContractId: ContractIdInput }>;
 export type IdentityOutput = Enum<{ Address: AddressOutput, ContractId: ContractIdOutput }>;
-export enum UserErrorInput { SucessfulCampaign = 'SucessfulCampaign', AlreadySigned = 'AlreadySigned', InvalidID = 'InvalidID', UnauthorizedUser = 'UnauthorizedUser', UserHasNotSigned = 'UserHasNotSigned' };
-export enum UserErrorOutput { SucessfulCampaign = 'SucessfulCampaign', AlreadySigned = 'AlreadySigned', InvalidID = 'InvalidID', UnauthorizedUser = 'UnauthorizedUser', UserHasNotSigned = 'UserHasNotSigned' };
+export enum UserErrorInput { SuccessfulCampaign = 'SuccessfulCampaign', AlreadySigned = 'AlreadySigned', InvalidID = 'InvalidID', UnauthorizedUser = 'UnauthorizedUser', UserHasNotSigned = 'UserHasNotSigned' };
+export enum UserErrorOutput { SuccessfulCampaign = 'SuccessfulCampaign', AlreadySigned = 'AlreadySigned', InvalidID = 'InvalidID', UnauthorizedUser = 'UnauthorizedUser', UserHasNotSigned = 'UserHasNotSigned' };
 
-export type AddressInput = { value: string };
+export type AddressInput = { bits: string };
 export type AddressOutput = AddressInput;
 export type CampaignInput = { id: BigNumberish };
 export type CampaignOutput = { id: BN };
@@ -41,7 +41,7 @@ export type CampaignInfoInput = { author: IdentityInput, state: CampaignStateInp
 export type CampaignInfoOutput = { author: IdentityOutput, state: CampaignStateOutput, deadline: BN, total_signs: BN };
 export type CancelledCampaignEventInput = { campaign_id: BigNumberish };
 export type CancelledCampaignEventOutput = { campaign_id: BN };
-export type ContractIdInput = { value: string };
+export type ContractIdInput = { bits: string };
 export type ContractIdOutput = ContractIdInput;
 export type CreatedCampaignEventInput = { author: IdentityInput, campaign_info: CampaignInfoInput, campaign_id: BigNumberish };
 export type CreatedCampaignEventOutput = { author: IdentityOutput, campaign_info: CampaignInfoOutput, campaign_id: BN };
@@ -49,8 +49,8 @@ export type SignedEventInput = { campaign_id: BigNumberish, user: IdentityInput 
 export type SignedEventOutput = { campaign_id: BN, user: IdentityOutput };
 export type SignsInput = { sign: BigNumberish, campaign_id: BigNumberish };
 export type SignsOutput = { sign: number, campaign_id: BN };
-export type SucessfulCampaignEventInput = { campaign_id: BigNumberish, total_signs: BigNumberish };
-export type SucessfulCampaignEventOutput = { campaign_id: BN, total_signs: BN };
+export type SuccessfulCampaignEventInput = { campaign_id: BigNumberish, total_signs: BigNumberish };
+export type SuccessfulCampaignEventOutput = { campaign_id: BN, total_signs: BN };
 export type UnsignedEventInput = { campaign_id: BigNumberish, user: IdentityInput };
 export type UnsignedEventOutput = { campaign_id: BN, user: IdentityOutput };
 
