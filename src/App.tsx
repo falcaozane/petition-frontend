@@ -14,7 +14,7 @@ import {
   useFuel
 } from '@fuels/react';
 
-const CONTRACT_ID = '0x620a17ec51648d0352b456e8304b1267013fa539771f1814c740232584a848f0'; //Replace with your contract address
+const CONTRACT_ID = '0x6f750eba9cd5bb45ba2b3a3930788715c32ebce37a596a4e3438ea04f8e5a4a4'; //Replace with your contract address
 
 function App() {
   const [showModal, setShowModal] = useState(false);
